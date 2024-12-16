@@ -1,31 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Button } from 'react-native';
-import axios from 'axios';
+import React from 'react';
+import { View, Button, StyleSheet } from 'react-native';
 
-const HomeScreen = ({ navigation }) => {
-    const [flashcards, setFlashcards] = useState([]);
-
-    useEffect(() => {
-        axios.get('http://localhost:5000/api/flashcards')
-            .then(response => setFlashcards(response.data))
-            .catch(error => console.log(error));
-    }, []);
-
+const HomeScreen = () => {
     return (
-        <View>
-            <Button title="Add Flashcard" onPress={() => navigation.navigate('AddFlashcard')} />
-            <FlatList
-                data={flashcards}
-                keyExtractor={(item) => item._id}
-                renderItem={({ item }) => (
-                    <View>
-                        <Text>Q: {item.question}</Text>
-                        <Text>A: {item.answer}</Text>
-                    </View>
-                )}
+        <View style={styles.container}>
+            <Button
+                title="Click Me"
+                onPress={() => alert('Button Pressed!')}
             />
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f8f8f8',
+    }
+});
 
 export default HomeScreen;
