@@ -3,6 +3,7 @@ import Flashcard from '../models/Flashcard'; // Ensure this path points to your 
 
 const router = express.Router();
 
+// Fetch all flashcards
 router.get('/', async (req: Request, res: Response): Promise<void> => {
     try {
         const flashcards = await Flashcard.find();
@@ -18,13 +19,16 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     }
 });
 
+// POST at route: http://localhost:8080/flashcards/
 router.post('/', async (req: Request, res: Response): Promise<void> => {
     try {
+        console.log('Attempting to save flashcard:', req.body);
         const { question, answer, category } = req.body;
         const newFlashcard = new Flashcard({ question, answer, category });
         const savedFlashcard = await newFlashcard.save();
         res.status(201).json(savedFlashcard);
     } catch (error) {
+        console.log('Attempting to save flashcard:', req.body);
         if (error instanceof Error) {
             console.error('Error adding flashcard:', error.message);
             res.status(500).json({ error: 'Failed to add flashcard', details: error.message });
@@ -35,6 +39,7 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
     }
 });
 
+// Fetch a single flashcard by ID
 router.get('/:id', async (req: Request<{ id: string }>, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
@@ -55,6 +60,7 @@ router.get('/:id', async (req: Request<{ id: string }>, res: Response): Promise<
     }
 });
 
+// Update a flashcard by ID
 router.put('/:id', async (req: Request<{ id: string }>, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
@@ -80,6 +86,7 @@ router.put('/:id', async (req: Request<{ id: string }>, res: Response): Promise<
     }
 });
 
+// Delete a flashcard by ID
 router.delete('/:id', async (req: Request<{ id: string }>, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
