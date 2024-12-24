@@ -7,11 +7,11 @@ interface FlashcardData {
     answer: string;
 }
 
-const sampleFlashcards: FlashcardData[] = [
-    { _id: '1', question: 'What is React?', answer: 'A JavaScript library for building UIs' },
-    { _id: '2', question: 'What is TypeScript?', answer: 'A superset of JavaScript with types' },
-    { _id: '3', question: 'What is a Closure?', answer: 'A function that remembers its lexical scope' },
-];
+// const sampleFlashcards: FlashcardData[] = [
+//     { _id: '1', question: 'What is React?', answer: 'A JavaScript library for building UIs' },
+//     { _id: '2', question: 'What is TypeScript?', answer: 'A superset of JavaScript with types' },
+//     { _id: '3', question: 'What is a Closure?', answer: 'A function that remembers its lexical scope' },
+// ];
 
 const App: React.FC = () => {
     const [flashcards, setFlashcards] = useState<FlashcardData[]>([]);
@@ -20,30 +20,35 @@ const App: React.FC = () => {
     const [newQuestion, setNewQuestion] = useState<string>('');
     const [newAnswer, setNewAnswer] = useState<string>('');
 
-    // Simulate data fetching with setTimeout
     useEffect(() => {
-        setTimeout(() => {
-            setFlashcards(sampleFlashcards);
-            setLoading(false);
-        }, 1000);
+        const fetchFlashcards = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/flashcards');
+                setFlashcards(response.data); // Assume backend returns an array of flashcards
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching flashcards:', error);
+                alert('Failed to fetch flashcards. Please check your backend.');
+            }
+        };
+    
+        fetchFlashcards();
     }, []);
+    
 
     const handleAddFlashcard = async () => {
         if (newQuestion.trim() === '' || newAnswer.trim() === '') {
             alert('Both question and answer are required.');
             return;
         }
-    
+
         const newFlashcard = {
             question: newQuestion,
             answer: newAnswer,
         };
-    
+
         try {
-            // Send the new flashcard to the backend
             const response = await axios.post('http://localhost:8080/flashcards', newFlashcard);
-    
-            // Update the local state with the new flashcard
             setFlashcards([...flashcards, response.data]);
             setNewQuestion('');
             setNewAnswer('');
@@ -52,6 +57,17 @@ const App: React.FC = () => {
         } catch (error) {
             console.error('Error adding flashcard:', error);
             alert('Failed to add flashcard. Please try again.');
+        }
+    };
+
+    const handleDeleteFlashcard = async (id: string) => {
+        try {
+            await axios.delete(`http://localhost:8080/flashcards/${id}`);
+            setFlashcards(flashcards.filter((flashcard) => flashcard._id !== id));
+            alert('Flashcard deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting flashcard:', error);
+            alert('Failed to delete flashcard. Please try again.');
         }
     };
 
@@ -66,6 +82,12 @@ const App: React.FC = () => {
                     <div key={flashcard._id} style={styles.card}>
                         <h3 style={styles.question}>{flashcard.question}</h3>
                         <p style={styles.answer}>{flashcard.answer}</p>
+                        <button
+                            style={styles.deleteButton}
+                            onClick={() => handleDeleteFlashcard(flashcard._id)}
+                        >
+                            Delete
+                        </button>
                     </div>
                 ))
             )}
@@ -99,7 +121,7 @@ const App: React.FC = () => {
     );
 };
 
-// Styles object
+// Updated styles object
 const styles: Record<string, React.CSSProperties> = {
     container: {
         maxWidth: '600px',
@@ -118,6 +140,7 @@ const styles: Record<string, React.CSSProperties> = {
         margin: '10px 0',
         borderRadius: '10px',
         boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+        position: 'relative',
     },
     question: {
         fontWeight: 'bold',
@@ -137,6 +160,17 @@ const styles: Record<string, React.CSSProperties> = {
         backgroundColor: '#007bff',
         color: '#fff',
         border: 'none',
+        cursor: 'pointer',
+    },
+    deleteButton: {
+        position: 'absolute',
+        top: '10px',
+        right: '10px',
+        backgroundColor: '#dc3545',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '5px',
+        padding: '5px 10px',
         cursor: 'pointer',
     },
     formContainer: {
