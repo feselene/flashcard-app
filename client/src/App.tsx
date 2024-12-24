@@ -7,34 +7,28 @@ interface FlashcardData {
     answer: string;
 }
 
-// const sampleFlashcards: FlashcardData[] = [
-//     { _id: '1', question: 'What is React?', answer: 'A JavaScript library for building UIs' },
-//     { _id: '2', question: 'What is TypeScript?', answer: 'A superset of JavaScript with types' },
-//     { _id: '3', question: 'What is a Closure?', answer: 'A function that remembers its lexical scope' },
-// ];
-
 const App: React.FC = () => {
     const [flashcards, setFlashcards] = useState<FlashcardData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [showForm, setShowForm] = useState<boolean>(false);
     const [newQuestion, setNewQuestion] = useState<string>('');
     const [newAnswer, setNewAnswer] = useState<string>('');
+    const [editingFlashcard, setEditingFlashcard] = useState<FlashcardData | null>(null);
 
     useEffect(() => {
         const fetchFlashcards = async () => {
             try {
                 const response = await axios.get('http://localhost:8080/flashcards');
-                setFlashcards(response.data); // Assume backend returns an array of flashcards
+                setFlashcards(response.data);
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching flashcards:', error);
                 alert('Failed to fetch flashcards. Please check your backend.');
             }
         };
-    
+
         fetchFlashcards();
     }, []);
-    
 
     const handleAddFlashcard = async () => {
         if (newQuestion.trim() === '' || newAnswer.trim() === '') {
@@ -42,10 +36,7 @@ const App: React.FC = () => {
             return;
         }
 
-        const newFlashcard = {
-            question: newQuestion,
-            answer: newAnswer,
-        };
+        const newFlashcard = { question: newQuestion, answer: newAnswer };
 
         try {
             const response = await axios.post('http://localhost:8080/flashcards', newFlashcard);
@@ -71,6 +62,28 @@ const App: React.FC = () => {
         }
     };
 
+    const handleEditFlashcard = (flashcard: FlashcardData) => {
+        setEditingFlashcard(flashcard);
+    };
+
+    const handleUpdateFlashcard = async () => {
+        if (!editingFlashcard) return;
+
+        try {
+            const response = await axios.put(`http://localhost:8080/flashcards/${editingFlashcard._id}`, editingFlashcard);
+            setFlashcards(
+                flashcards.map((flashcard) =>
+                    flashcard._id === editingFlashcard._id ? response.data : flashcard
+                )
+            );
+            setEditingFlashcard(null);
+            alert('Flashcard updated successfully!');
+        } catch (error) {
+            console.error('Error updating flashcard:', error);
+            alert('Failed to update flashcard. Please try again.');
+        }
+    };
+
     return (
         <div style={styles.container}>
             <h1 style={styles.title}>My Flashcards</h1>
@@ -88,8 +101,45 @@ const App: React.FC = () => {
                         >
                             Delete
                         </button>
+                        <button
+                            style={styles.editButton}
+                            onClick={() => handleEditFlashcard(flashcard)}
+                        >
+                            Edit
+                        </button>
                     </div>
                 ))
+            )}
+
+            {editingFlashcard && (
+                <div style={styles.formContainer}>
+                    <h3>Edit Flashcard</h3>
+                    <input
+                        type="text"
+                        value={editingFlashcard.question}
+                        onChange={(e) =>
+                            setEditingFlashcard({ ...editingFlashcard, question: e.target.value })
+                        }
+                        style={styles.input}
+                    />
+                    <input
+                        type="text"
+                        value={editingFlashcard.answer}
+                        onChange={(e) =>
+                            setEditingFlashcard({ ...editingFlashcard, answer: e.target.value })
+                        }
+                        style={styles.input}
+                    />
+                    <button style={styles.submitButton} onClick={handleUpdateFlashcard}>
+                        Update
+                    </button>
+                    <button
+                        style={styles.cancelButton}
+                        onClick={() => setEditingFlashcard(null)}
+                    >
+                        Cancel
+                    </button>
+                </div>
             )}
 
             <button style={styles.addButton} onClick={() => setShowForm(!showForm)}>
@@ -121,7 +171,7 @@ const App: React.FC = () => {
     );
 };
 
-// Updated styles object
+// Updated styles
 const styles: Record<string, React.CSSProperties> = {
     container: {
         maxWidth: '600px',
@@ -173,6 +223,17 @@ const styles: Record<string, React.CSSProperties> = {
         padding: '5px 10px',
         cursor: 'pointer',
     },
+    editButton: {
+        position: 'absolute',
+        top: '10px',
+        right: '80px',
+        backgroundColor: '#ffc107',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '5px',
+        padding: '5px 10px',
+        cursor: 'pointer',
+    },
     formContainer: {
         marginTop: '20px',
         padding: '10px',
@@ -195,6 +256,17 @@ const styles: Record<string, React.CSSProperties> = {
         fontSize: '16px',
         borderRadius: '5px',
         backgroundColor: '#28a745',
+        color: '#fff',
+        border: 'none',
+        cursor: 'pointer',
+    },
+    cancelButton: {
+        display: 'block',
+        margin: '10px auto',
+        padding: '10px 20px',
+        fontSize: '16px',
+        borderRadius: '5px',
+        backgroundColor: '#dc3545',
         color: '#fff',
         border: 'none',
         cursor: 'pointer',
