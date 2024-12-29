@@ -10,7 +10,6 @@ interface FlashcardData {
 
 const FlashcardsScreen: React.FC = () => {
     const [flashcards, setFlashcards] = useState<FlashcardData[]>([]);
-    const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -31,25 +30,11 @@ const FlashcardsScreen: React.FC = () => {
     const handleDeleteFlashcard = async (id: string) => {
         try {
             await axios.delete(`http://localhost:8080/flashcards/${id}`);
-            const updatedFlashcards = flashcards.filter((flashcard) => flashcard._id !== id);
-            setFlashcards(updatedFlashcards);
-            setCurrentIndex((prevIndex) => Math.max(0, prevIndex - 1));
+            setFlashcards(flashcards.filter((flashcard) => flashcard._id !== id));
             alert('Flashcard deleted successfully!');
         } catch (error) {
             console.error('Error deleting flashcard:', error);
             alert('Failed to delete flashcard. Please try again.');
-        }
-    };
-
-    const handleNext = () => {
-        if (currentIndex < flashcards.length - 1) {
-            setCurrentIndex(currentIndex + 1);
-        }
-    };
-
-    const handlePrevious = () => {
-        if (currentIndex > 0) {
-            setCurrentIndex(currentIndex - 1);
         }
     };
 
@@ -59,39 +44,19 @@ const FlashcardsScreen: React.FC = () => {
 
             {loading ? (
                 <p>Loading flashcards...</p>
-            ) : flashcards.length === 0 ? (
-                <p>No flashcards available. Add some to get started!</p>
             ) : (
-                <div style={styles.card}>
-                    <h3 style={styles.question}>{flashcards[currentIndex].question}</h3>
-                    <p style={styles.answer}>{flashcards[currentIndex].answer}</p>
-                    <button
-                        style={styles.deleteButton}
-                        onClick={() => handleDeleteFlashcard(flashcards[currentIndex]._id)}
-                    >
-                        Delete
-                    </button>
-                    <p style={styles.counter}>{`${currentIndex + 1} / ${flashcards.length}`}</p>
-                </div>
-            )}
-
-            {flashcards.length > 0 && (
-                <div style={styles.navigationButtons}>
-                    <button
-                        style={styles.navButton}
-                        onClick={handlePrevious}
-                        disabled={currentIndex === 0}
-                    >
-                        Previous
-                    </button>
-                    <button
-                        style={styles.navButton}
-                        onClick={handleNext}
-                        disabled={currentIndex === flashcards.length - 1}
-                    >
-                        Next
-                    </button>
-                </div>
+                flashcards.map((flashcard) => (
+                    <div key={flashcard._id} style={styles.card}>
+                        <h3 style={styles.question}>{flashcard.question}</h3>
+                        <p style={styles.answer}>{flashcard.answer}</p>
+                        <button
+                            style={styles.deleteButton}
+                            onClick={() => handleDeleteFlashcard(flashcard._id)}
+                        >
+                            Delete
+                        </button>
+                    </div>
+                ))
             )}
 
             <Link to="/add-flashcard">
@@ -151,26 +116,6 @@ const styles: Record<string, React.CSSProperties> = {
         borderRadius: '5px',
         padding: '5px 10px',
         cursor: 'pointer',
-    },
-    navigationButtons: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginTop: '20px',
-    },
-    navButton: {
-        padding: '10px 20px',
-        fontSize: '16px',
-        borderRadius: '5px',
-        border: 'none',
-        cursor: 'pointer',
-        backgroundColor: '#007bff',
-        color: '#fff',
-    },
-    counter: {
-        marginTop: '10px',
-        textAlign: 'center',
-        fontSize: '14px',
-        color: '#777',
     },
 };
 
