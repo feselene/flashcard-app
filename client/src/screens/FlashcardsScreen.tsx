@@ -12,6 +12,7 @@ const FlashcardsScreen: React.FC = () => {
     const [flashcards, setFlashcards] = useState<FlashcardData[]>([]);
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(true);
+    const [showAnswer, setShowAnswer] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchFlashcards = async () => {
@@ -44,12 +45,14 @@ const FlashcardsScreen: React.FC = () => {
     const handleNext = () => {
         if (currentIndex < flashcards.length - 1) {
             setCurrentIndex(currentIndex + 1);
+            setShowAnswer(false);
         }
     };
 
     const handlePrevious = () => {
         if (currentIndex > 0) {
             setCurrentIndex(currentIndex - 1);
+            setShowAnswer(false);
         }
     };
 
@@ -64,7 +67,13 @@ const FlashcardsScreen: React.FC = () => {
             ) : (
                 <div style={styles.card}>
                     <h3 style={styles.question}>{flashcards[currentIndex].question}</h3>
-                    <p style={styles.answer}>{flashcards[currentIndex].answer}</p>
+                    {showAnswer && <p style={styles.answer}>{flashcards[currentIndex].answer}</p>}
+                    <button
+                        style={styles.showAnswerButton}
+                        onClick={() => setShowAnswer(!showAnswer)}
+                    >
+                        {showAnswer ? 'Hide Answer' : 'Show Answer'}
+                    </button>
                     <button
                         style={styles.deleteButton}
                         onClick={() => handleDeleteFlashcard(flashcards[currentIndex]._id)}
@@ -129,6 +138,16 @@ const styles: Record<string, React.CSSProperties> = {
     answer: {
         color: '#555',
         fontSize: '16px',
+    },
+    showAnswerButton: {
+        marginTop: '10px',
+        padding: '5px 10px',
+        fontSize: '14px',
+        borderRadius: '5px',
+        backgroundColor: '#007bff',
+        color: '#fff',
+        border: 'none',
+        cursor: 'pointer',
     },
     addButton: {
         display: 'block',
