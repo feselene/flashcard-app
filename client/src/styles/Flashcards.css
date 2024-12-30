@@ -1,0 +1,99 @@
+/* Flashcards.css - Mimicking the Anki UI */
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f2f2f2;
+}
+
+.flashcards-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.deck-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333333;
+}
+
+.flashcard-item {
+  padding: 20px;
+  background-color: #fafafa;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.flashcard-item:hover {
+  transform: translateY(-3px);
+}
+
+.flashcard-question {
+  font-size: 18px;
+  font-weight: bold;
+  color: #222222;
+  margin-bottom: 10px;
+}
+
+.flashcard-answer {
+  font-size: 16px;
+  color: #444444;
+}
+
+.review-controls {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.review-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.review-button.easy {
+  background-color: #4caf50;
+  color: #ffffff;
+}
+
+.review-button.easy:hover {
+  background-color: #45a049;
+}
+
+.review-button.medium {
+  background-color: #ffa500;
+  color: #ffffff;
+}
+
+.review-button.medium:hover {
+  background-color: #e59400;
+}
+
+.review-button.hard {
+  background-color: #f44336;
+  color: #ffffff;
+}
+
+.review-button.hard:hover {
+  background-color: #d32f2f;
+}
+
+.loading {
+  font-size: 18px;
+  color: #555555;
+}

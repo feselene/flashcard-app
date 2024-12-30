@@ -1,196 +1,82 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import '../styles/Flashcards.css'; // Assuming you will create a CSS file for styling
 
-interface FlashcardData {
-    _id: string;
-    question: string;
-    answer: string;
+interface Flashcard {
+  question: string;
+  answer: string;
 }
 
 const FlashcardsScreen: React.FC = () => {
-    const [flashcards, setFlashcards] = useState<FlashcardData[]>([]);
-    const [currentIndex, setCurrentIndex] = useState<number>(0);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [showAnswer, setShowAnswer] = useState<boolean>(false);
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [showAnswer, setShowAnswer] = useState(false);
 
-    useEffect(() => {
-        const fetchFlashcards = async () => {
-            try {
-                const response = await axios.get('http://localhost:8080/flashcards');
-                setFlashcards(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching flashcards:', error);
-                alert('Failed to fetch flashcards. Please check your backend.');
-            }
-        };
-
-        fetchFlashcards();
-    }, []);
-
-    const handleDeleteFlashcard = async (id: string) => {
-        try {
-            await axios.delete(`http://localhost:8080/flashcards/${id}`);
-            const updatedFlashcards = flashcards.filter((flashcard) => flashcard._id !== id);
-            setFlashcards(updatedFlashcards);
-            setCurrentIndex((prevIndex) => Math.max(0, prevIndex - 1));
-            alert('Flashcard deleted successfully!');
-        } catch (error) {
-            console.error('Error deleting flashcard:', error);
-            alert('Failed to delete flashcard. Please try again.');
-        }
+  useEffect(() => {
+    // Simulate fetching flashcards for the deck
+    const fetchFlashcards = async () => {
+      try {
+        console.log(`Fetching flashcards for deck ID: ${id}`);
+        // Simulate an API call or use a real API endpoint
+        const response = [
+          { question: 'What is React?', answer: 'A JavaScript library for building user interfaces' },
+          { question: 'What is a component?', answer: 'Reusable building block in React applications' },
+        ];
+        setFlashcards(response);
+      } catch (error) {
+        console.error('Error fetching flashcards:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const handleNext = () => {
-        if (currentIndex < flashcards.length - 1) {
-            setCurrentIndex(currentIndex + 1);
-            setShowAnswer(false);
-        }
-    };
+    fetchFlashcards();
+  }, [id]);
 
-    const handlePrevious = () => {
-        if (currentIndex > 0) {
-            setCurrentIndex(currentIndex - 1);
-            setShowAnswer(false);
-        }
-    };
+  const handleNext = () => {
+    setShowAnswer(false);
+    if (currentIndex + 1 < flashcards.length) {
+      setCurrentIndex((prevIndex) => prevIndex + 1);
+    } else {
+      navigate('/'); // Redirect to the Flashcard Decks screen after finishing all flashcards
+    }
+  };
 
-    return (
-        <div style={styles.container}>
-            <h1 style={styles.title}>My Flashcards</h1>
+  if (loading) {
+    return <div className="loading">Loading flashcards...</div>;
+  }
 
-            {loading ? (
-                <p>Loading flashcards...</p>
-            ) : flashcards.length === 0 ? (
-                <p>No flashcards available. Add some to get started!</p>
-            ) : (
-                <div style={styles.card}>
-                    <h3 style={styles.question}>{flashcards[currentIndex].question}</h3>
-                    {showAnswer && <p style={styles.answer}>{flashcards[currentIndex].answer}</p>}
-                    <button
-                        style={styles.showAnswerButton}
-                        onClick={() => setShowAnswer(!showAnswer)}
-                    >
-                        {showAnswer ? 'Hide Answer' : 'Show Answer'}
-                    </button>
-                    <button
-                        style={styles.deleteButton}
-                        onClick={() => handleDeleteFlashcard(flashcards[currentIndex]._id)}
-                    >
-                        Delete
-                    </button>
-                    <p style={styles.counter}>{`${currentIndex + 1} / ${flashcards.length}`}</p>
-                </div>
-            )}
+  const currentFlashcard = flashcards[currentIndex];
 
-            {flashcards.length > 0 && (
-                <div style={styles.navigationButtons}>
-                    <button
-                        style={styles.navButton}
-                        onClick={handlePrevious}
-                        disabled={currentIndex === 0}
-                    >
-                        Previous
-                    </button>
-                    <button
-                        style={styles.navButton}
-                        onClick={handleNext}
-                        disabled={currentIndex === flashcards.length - 1}
-                    >
-                        Next
-                    </button>
-                </div>
-            )}
-
-            <Link to="/add-flashcard">
-                <button style={styles.addButton}>Add Flashcard</button>
-            </Link>
+  return (
+    <div className="flashcards-container">
+      <h1 className="deck-title">Flashcards for Deck {id}</h1>
+      <div className="flashcard-item">
+        <div className="flashcard-question">
+          <strong>Q:</strong> {currentFlashcard.question}
         </div>
-    );
-};
-
-const styles: Record<string, React.CSSProperties> = {
-    container: {
-        maxWidth: '600px',
-        margin: '0 auto',
-        padding: '20px',
-        backgroundColor: '#f5f5f5',
-    },
-    title: {
-        textAlign: 'center' as const,
-        fontSize: '24px',
-        marginBottom: '20px',
-    },
-    card: {
-        backgroundColor: '#f9f9f9',
-        padding: '20px',
-        margin: '10px 0',
-        borderRadius: '10px',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-        position: 'relative',
-    },
-    question: {
-        fontWeight: 'bold',
-        fontSize: '18px',
-        marginBottom: '10px',
-    },
-    answer: {
-        color: '#555',
-        fontSize: '16px',
-    },
-    showAnswerButton: {
-        marginTop: '10px',
-        padding: '5px 10px',
-        fontSize: '14px',
-        borderRadius: '5px',
-        backgroundColor: '#007bff',
-        color: '#fff',
-        border: 'none',
-        cursor: 'pointer',
-    },
-    addButton: {
-        display: 'block',
-        margin: '20px auto',
-        padding: '10px 20px',
-        fontSize: '16px',
-        borderRadius: '5px',
-        backgroundColor: '#007bff',
-        color: '#fff',
-        border: 'none',
-        cursor: 'pointer',
-    },
-    deleteButton: {
-        position: 'absolute',
-        top: '10px',
-        right: '10px',
-        backgroundColor: '#dc3545',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '5px',
-        padding: '5px 10px',
-        cursor: 'pointer',
-    },
-    navigationButtons: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginTop: '20px',
-    },
-    navButton: {
-        padding: '10px 20px',
-        fontSize: '16px',
-        borderRadius: '5px',
-        border: 'none',
-        cursor: 'pointer',
-        backgroundColor: '#007bff',
-        color: '#fff',
-    },
-    counter: {
-        marginTop: '10px',
-        textAlign: 'center',
-        fontSize: '14px',
-        color: '#777',
-    },
+        {showAnswer && (
+          <div className="flashcard-answer">
+            <strong>A:</strong> {currentFlashcard.answer}
+          </div>
+        )}
+      </div>
+      <div className="review-controls">
+        {!showAnswer ? (
+          <button className="review-button show-answer" onClick={() => setShowAnswer(true)}>Show Answer</button>
+        ) : (
+          <>
+            <button className="review-button easy" onClick={handleNext}>Easy</button>
+            <button className="review-button medium" onClick={handleNext}>Medium</button>
+            <button className="review-button hard" onClick={handleNext}>Hard</button>
+          </>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default FlashcardsScreen;

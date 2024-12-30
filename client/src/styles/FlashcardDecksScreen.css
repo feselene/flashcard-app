@@ -1,0 +1,88 @@
+/* FlashcardDecksScreen.css - Mimicking the Anki UI */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f2f2f2;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333333;
+  }
+  
+  .deck-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .deck-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .deck-item:hover {
+    background-color: #f9f9f9;
+    transform: translateY(-3px);
+  }
+  
+  .deck-header {
+    flex-grow: 1;
+  }
+  
+  .deck-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    color: #222222;
+  }
+  
+  .deck-count {
+    font-size: 14px;
+    color: #888888;
+  }
+  
+  .study-button {
+    padding: 8px 15px;
+    background-color: #4caf50;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .study-button:hover {
+    background-color: #45a049;
+  }
+  
+  .loading {
+    text-align: center;
+    font-size: 18px;
+    color: #555555;
+    margin-top: 20px;
+  }
+  
